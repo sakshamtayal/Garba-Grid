@@ -63,9 +63,9 @@ export default function ChatPage() {
   // ── Fetch connections for DM modal ─────────────────────────────────────────
   useEffect(() => {
     if (!showNewDM) return;
-    fetch('/api/connections?status=accepted')
+    fetch('/api/connections')
       .then((r) => r.json())
-      .then((d) => setConnections(d.connections ?? []))
+      .then((d) => setConnections(d.data?.connected ?? []))
       .catch(() => {});
   }, [showNewDM]);
 
@@ -207,22 +207,29 @@ export default function ChatPage() {
               ) : (
                 <div className="space-y-2 max-h-64 overflow-y-auto">
                   {connections.map((conn: any) => {
-                    const other = conn.requester?._id === (session?.user as any)?._id
-                      ? conn.recipient
-                      : conn.requester;
+                    const other = conn.user;
                     return (
                       <button
-                        key={conn._id}
+                        key={conn.matchId}
                         onClick={() => handleCreateDM(other._id)}
                         disabled={isCreatingDM}
                         className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-bg-hover transition-colors text-left disabled:opacity-50"
                       >
-                        <div className="w-9 h-9 rounded-full bg-accent-marigold/15 flex items-center justify-center text-accent-marigold font-bold text-sm">
-                          {(other?.name ?? '?')[0].toUpperCase()}
-                        </div>
+                        {other?.profilePicture ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={other.profilePicture}
+                            alt={other.name}
+                            className="w-9 h-9 rounded-full object-cover border border-border-primary"
+                          />
+                        ) : (
+                          <div className="w-9 h-9 rounded-full bg-accent-marigold/15 flex items-center justify-center text-accent-marigold font-bold text-sm">
+                            {(other?.name ?? '?')[0].toUpperCase()}
+                          </div>
+                        )}
                         <div>
                           <p className="text-sm font-medium text-text-primary">{other?.name}</p>
-                          <p className="text-xs text-text-muted">{other?.college}</p>
+                          <p className="text-xs text-text-muted">@{other?.username} · {other?.college}</p>
                         </div>
                       </button>
                     );
