@@ -120,8 +120,8 @@ export default function AppShell({ children }: AppShellProps) {
 
       {/* ── Mobile Bottom Nav ── */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-bg-secondary border-t border-border-primary">
-        <div className="flex items-center justify-around px-2 py-2">
-          {NAV_ITEMS.slice(0, 5).map((item) => {
+        <div className="flex items-center justify-around px-1 py-2 overflow-x-auto scrollbar-none">
+          {NAV_ITEMS.map((item) => {
             const Icon = item.icon;
             const active =
               pathname === item.href || pathname.startsWith(item.href + '/');
@@ -130,29 +130,17 @@ export default function AppShell({ children }: AppShellProps) {
                 key={item.href}
                 href={item.href}
                 className={clsx(
-                  'flex flex-col items-center gap-0.5 px-3 py-2 rounded-xl transition-colors',
+                  'flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-xl transition-colors flex-shrink-0',
                   active
                     ? 'text-accent-marigold'
                     : 'text-text-muted hover:text-text-secondary',
                 )}
               >
                 <Icon size={20} />
-                <span className="text-[10px] font-medium">{item.label}</span>
+                <span className="text-[9px] font-medium">{item.label}</span>
               </Link>
             );
           })}
-          <Link
-            href="/profile"
-            className={clsx(
-              'flex flex-col items-center gap-0.5 px-3 py-2 rounded-xl transition-colors',
-              pathname === '/profile' || pathname.startsWith('/profile/')
-                ? 'text-accent-marigold'
-                : 'text-text-muted hover:text-text-secondary',
-            )}
-          >
-            <User size={20} />
-            <span className="text-[10px] font-medium">Profile</span>
-          </Link>
         </div>
       </nav>
     </div>
