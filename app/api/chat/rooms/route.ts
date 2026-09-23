@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { connectDB } from '@/lib/db';
 import { ChatRoom } from '@/lib/models/chat';
+import Match from '@/models/Match';
 import mongoose from 'mongoose';
 
 // ── GET /api/chat/rooms ────────────────────────────────────────────────────────
@@ -94,6 +95,21 @@ export async function POST(req: NextRequest) {
 
   if (myId.equals(theirId)) {
     return NextResponse.json({ error: 'Cannot DM yourself' }, { status: 400 });
+  }
+
+  // ── Mutual connection gate ─────────────────────────────────────────────────
+  const mutualMatch = await Match.findOne({
+    $or: [
+      { from: myId, to: theirId, status: 'connected' },
+      { from: theirId, to: myId, status: 'connected' },
+    ],
+  });
+
+  if (!mutualMatch) {
+    return NextResponse.json(
+      { error: 'You can only DM people you are mutually connected with.' },
+      { status: 403 }
+    );
   }
 
   // Check if DM already exists

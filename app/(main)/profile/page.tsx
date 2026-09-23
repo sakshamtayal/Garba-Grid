@@ -7,7 +7,7 @@ import ProfileView from '@/components/profile/ProfileView';
 import EditProfileForm from '@/components/profile/EditProfileForm';
 import Button from '@/components/ui/Button';
 import DandiayaLoader from '@/components/ui/DandiayaLoader';
-import { Edit3, LogOut, Sparkles, Shield, User } from 'lucide-react';
+import { Edit3, LogOut, Sparkles, Users } from 'lucide-react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import Link from 'next/link';
@@ -99,6 +99,27 @@ export default function ProfilePage() {
           </Button>
         </div>
       </div>
+
+      {/* View Connections shortcut */}
+      {!isEditing && (
+        <Link
+          href="/connections"
+          className="flex items-center gap-3 px-4 py-3 bg-bg-card rounded-2xl border border-border-primary hover:border-border-accent transition-all group"
+        >
+          <div className="w-9 h-9 rounded-full bg-accent-marigold/10 flex items-center justify-center">
+            <Users size={16} className="text-accent-marigold" />
+          </div>
+          <div className="flex-1">
+            <p className="text-sm font-semibold text-text-primary group-hover:text-accent-marigold transition-colors">
+              My Connections
+            </p>
+            <p className="text-xs text-text-muted">
+              View connections, sent requests &amp; message people
+            </p>
+          </div>
+          <span className="text-text-muted text-sm">›</span>
+        </Link>
+      )}
 
       {/* Main View / Edit Form */}
       {isEditing ? (
