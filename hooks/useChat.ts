@@ -70,7 +70,7 @@ export function useChat(roomId: string): UseChatReturn {
   // ── Pusher: real-time new messages ─────────────────────────────────────────
   usePusher(`room-${roomId}`, 'new-message', (data: Message) => {
     // Ignore own messages (already added optimistically)
-    if (data.sender._id === (session?.user as any)?._id) return;
+    if (data.sender._id === (session?.user as any)?.id) return;
     addMessage(roomId, data);
     if (activeRoomId !== roomId) {
       incrementUnread(roomId);
@@ -120,7 +120,7 @@ export function useChat(roomId: string): UseChatReturn {
         _id: tempId,
         roomId,
         sender: {
-          _id: user._id ?? '',
+          _id: user.id ?? '',
           username: user.username ?? '',
           name: user.name ?? '',
           profilePicture: user.profilePicture,

@@ -43,7 +43,7 @@ export async function GET(
     return NextResponse.json({ error: 'Room not found' }, { status: 404 });
   }
 
-  if (!canAccessRoom(room, user._id, user.gender ?? '', user.college ?? '')) {
+  if (!canAccessRoom(room, user.id, user.gender ?? '', user.college ?? '')) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 

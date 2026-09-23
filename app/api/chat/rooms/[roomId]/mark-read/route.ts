@@ -23,7 +23,7 @@ export async function POST(
   await connectDB();
 
   const user = session.user as any;
-  const userId = new mongoose.Types.ObjectId(user._id);
+  const userId = new mongoose.Types.ObjectId(user.id);
 
   await Message.updateMany(
     {

@@ -140,7 +140,7 @@ export default function ChatRoomPage() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const myId = (session?.user as any)?._id;
+  const myId = (session?.user as any)?.id;
 
   if (status === 'loading' || isLoadingRoom) {
     return (

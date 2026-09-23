@@ -93,7 +93,7 @@ export async function POST(
   // Save message
   const message = await Message.create({
     roomId: new mongoose.Types.ObjectId(roomId),
-    sender: new mongoose.Types.ObjectId(user._id),
+    sender: new mongoose.Types.ObjectId(user.id),
     content,
     type,
   });
