@@ -1,6 +1,6 @@
 'use client';
 
-import { ReactNode } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useSession } from 'next-auth/react';
@@ -40,8 +40,29 @@ interface AppShellProps {
 export default function AppShell({ children }: AppShellProps) {
   const { data: session } = useSession();
   const pathname = usePathname();
+  const [pendingCount, setPendingCount] = useState(0);
 
   const isAdmin = (session?.user as { isAdmin?: boolean })?.isAdmin;
+
+  // Fetch pending connection requests count
+  useEffect(() => {
+    if (!session?.user) return;
+    const fetchPending = async () => {
+      try {
+        const res = await fetch('/api/matches');
+        const json = await res.json();
+        if (json.success) {
+          setPendingCount((json.data.pending || []).length);
+        }
+      } catch {
+        // silently fail
+      }
+    };
+    fetchPending();
+    // Refresh every 60 seconds
+    const interval = setInterval(fetchPending, 60000);
+    return () => clearInterval(interval);
+  }, [session]);
 
   return (
     <div className="flex flex-col min-h-screen md:flex-row">
@@ -64,6 +85,7 @@ export default function AppShell({ children }: AppShellProps) {
               icon={item.icon}
               label={item.label}
               active={pathname === item.href || pathname.startsWith(item.href + '/')}
+              badge={item.href === '/discover' && pendingCount > 0 ? pendingCount : 0}
             />
           ))}
 
@@ -125,18 +147,26 @@ export default function AppShell({ children }: AppShellProps) {
             const Icon = item.icon;
             const active =
               pathname === item.href || pathname.startsWith(item.href + '/');
+            const showBadge = item.href === '/discover' && pendingCount > 0;
             return (
               <Link
                 key={item.href}
                 href={item.href}
                 className={clsx(
-                  'flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-xl transition-colors flex-shrink-0',
+                  'flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-xl transition-colors flex-shrink-0 relative',
                   active
                     ? 'text-accent-marigold'
                     : 'text-text-muted hover:text-text-secondary',
                 )}
               >
-                <Icon size={20} />
+                <div className="relative">
+                  <Icon size={20} />
+                  {showBadge && (
+                    <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-500 text-white text-[9px] font-bold flex items-center justify-center">
+                      {pendingCount > 9 ? '9+' : pendingCount}
+                    </span>
+                  )}
+                </div>
                 <span className="text-[9px] font-medium">{item.label}</span>
               </Link>
             );
@@ -155,12 +185,14 @@ function NavLink({
   label,
   active,
   className,
+  badge = 0,
 }: {
   href: string;
   icon: React.ElementType;
   label: string;
   active: boolean;
   className?: string;
+  badge?: number;
 }) {
   return (
     <Link
@@ -173,7 +205,14 @@ function NavLink({
         className,
       )}
     >
-      <Icon size={18} className={active ? 'text-accent-marigold' : ''} />
+      <div className="relative">
+        <Icon size={18} className={active ? 'text-accent-marigold' : ''} />
+        {badge > 0 && (
+          <span className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-red-500 text-white text-[9px] font-bold flex items-center justify-center">
+            {badge > 9 ? '9+' : badge}
+          </span>
+        )}
+      </div>
       {label}
     </Link>
   );
