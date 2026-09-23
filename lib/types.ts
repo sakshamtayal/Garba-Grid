@@ -89,6 +89,7 @@ export const COLLEGE_COLORS: Record<string, string> = {
   IIIT: 'bg-amber-100 text-amber-900 border-amber-300 font-semibold',
   'IIT Delhi': 'bg-rose-100 text-rose-900 border-rose-300 font-semibold',
   DU: 'bg-purple-100 text-purple-900 border-purple-300 font-semibold',
+  IPU: 'bg-indigo-100 text-indigo-900 border-indigo-300 font-semibold',
   Other: 'bg-stone-100 text-stone-800 border-stone-300 font-semibold',
 };
 
@@ -121,5 +122,6 @@ export const COLLEGES: string[] = [
   'IIIT',
   'IIT Delhi',
   'DU',
+  'IPU',
   'Other',
 ];

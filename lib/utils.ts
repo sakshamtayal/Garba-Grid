@@ -139,6 +139,7 @@ const COLLEGE_COLORS: Record<string, { bg: string; text: string; border: string 
   IIIT: { bg: '#fef3c7', text: '#b45309', border: '#fcd34d' },
   'IIT Delhi': { bg: '#ffe4e6', text: '#be123c', border: '#fda4af' },
   DU: { bg: '#f3e8ff', text: '#7e22ce', border: '#d8b4fe' },
+  IPU: { bg: '#e0e7ff', text: '#4338ca', border: '#a5b4fc' },
   Other: { bg: '#f5f5f4', text: '#44403c', border: '#d6d3d1' },
 };
 

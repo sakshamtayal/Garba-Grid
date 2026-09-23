@@ -15,6 +15,7 @@ export type College =
   | 'IIIT'
   | 'IIT Delhi'
   | 'DU'
+  | 'IPU'
   | 'Other'
   | (string & {});
 
@@ -26,6 +27,7 @@ export const COLLEGES: string[] = [
   'IIIT',
   'IIT Delhi',
   'DU',
+  'IPU',
   'Other',
 ];
 
@@ -37,6 +39,7 @@ export const COLLEGE_COLORS: Record<string, string> = {
   IIIT: '#F97316',
   'IIT Delhi': '#EF4444',
   DU: '#8B5CF6',
+  IPU: '#6366F1',
   Other: '#6B7280',
 };
 
@@ -48,6 +51,7 @@ export const COLLEGE_BG_CLASSES: Record<string, string> = {
   IIIT: 'bg-amber-100 text-amber-900 border border-amber-300 font-semibold',
   'IIT Delhi': 'bg-rose-100 text-rose-900 border border-rose-300 font-semibold',
   DU: 'bg-purple-100 text-purple-900 border border-purple-300 font-semibold',
+  IPU: 'bg-indigo-100 text-indigo-900 border border-indigo-300 font-semibold',
   Other: 'bg-stone-100 text-stone-800 border border-stone-300 font-semibold',
 };
 

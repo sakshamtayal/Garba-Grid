@@ -4,7 +4,7 @@ import { Confession } from '@/models/Confession';
 import { requireAuth } from '@/lib/auth';
 import { z } from 'zod';
 
-const COLLEGES = ['DTU', 'NSUT', 'IGDTUW', 'NIT', 'IIIT', 'IIT Delhi', 'DU', 'Other'] as const;
+const COLLEGES = ['DTU', 'NSUT', 'IGDTUW', 'NIT', 'IIIT', 'IIT Delhi', 'DU', 'IPU', 'Other'] as const;
 
 const CreateConfessionSchema = z.object({
   content: z.string().min(5).max(500),

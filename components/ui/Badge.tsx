@@ -39,6 +39,7 @@ const COLLEGE_TW: Record<string, string> = {
   IIIT:       'bg-amber-100 text-amber-900 border border-amber-300 font-semibold shadow-sm',
   'IIT Delhi':'bg-rose-100 text-rose-900 border border-rose-300 font-semibold shadow-sm',
   DU:         'bg-purple-100 text-purple-900 border border-purple-300 font-semibold shadow-sm',
+  IPU:        'bg-indigo-100 text-indigo-900 border border-indigo-300 font-semibold shadow-sm',
   Other:      'bg-stone-100 text-stone-800 border border-stone-300 font-semibold shadow-sm',
 };
 

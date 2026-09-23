@@ -34,6 +34,7 @@ const COLLEGES: (College | 'Delhi-NCR Wide')[] = [
   'IIIT',
   'IIT Delhi',
   'DU',
+  'IPU',
   'Other',
 ];
 

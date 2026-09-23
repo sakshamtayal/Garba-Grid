@@ -12,7 +12,7 @@ import { Confession, College } from '@/types';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 
-const COLLEGES: (College | 'All')[] = ['All', 'DTU', 'NSUT', 'IGDTUW', 'NIT', 'IIIT', 'IIT Delhi', 'DU', 'Other'];
+const COLLEGES: (College | 'All')[] = ['All', 'DTU', 'NSUT', 'IGDTUW', 'NIT', 'IIIT', 'IIT Delhi', 'DU', 'IPU', 'Other'];
 
 export default function ConfessionsPage() {
   const { data: session } = useSession();
