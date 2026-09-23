@@ -93,13 +93,13 @@ export default function CreatorModal({ isOpen, onClose }: CreatorModalProps) {
                 </div>
 
                 <a
-                  href="https://instagram.com"
+                  href="https://www.instagram.com/saksham._.tayal/"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-accent-pink/10 hover:bg-accent-pink/20 border border-accent-pink/30 text-accent-pink text-xs font-medium transition-colors"
                 >
                   <Instagram size={14} />
-                  <span>@sakshamtayal</span>
+                  <span>@saksham._.tayal</span>
                 </a>
               </div>
 
