@@ -21,7 +21,7 @@ export async function GET(req: NextRequest) {
     const limit = Math.min(50, parseInt(searchParams.get('limit') ?? '20'));
     const college = searchParams.get('college');
 
-    const query: Record<string, unknown> = { isApproved: true };
+    const query: Record<string, unknown> = {};
     if (college && COLLEGES.includes(college as (typeof COLLEGES)[number])) {
       query.college = college;
     }
@@ -70,11 +70,11 @@ export async function POST(req: NextRequest) {
     const confession = await Confession.create({
       ...parsed.data,
       authorId: userId,
-      isApproved: false,
+      isApproved: true,
     });
 
     return NextResponse.json(
-      { message: 'Confession submitted — pending admin approval', confessionId: confession._id },
+      { message: 'Confession posted!', confessionId: confession._id },
       { status: 201 }
     );
   } catch (err) {

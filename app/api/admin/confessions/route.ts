@@ -18,20 +18,16 @@ export async function GET(req: NextRequest) {
   await connectDB();
 
   const page = parseInt(req.nextUrl.searchParams.get('page') ?? '1');
-  const status = req.nextUrl.searchParams.get('status') ?? 'pending'; // pending | approved | reported
   const PAGE_SIZE = 20;
 
-  const filter: Record<string, any> = {};
-  if (status === 'pending') filter.isApproved = false;
-  else if (status === 'approved') filter.isApproved = true;
-  else if (status === 'reported') filter['reports.0'] = { $exists: true };
+  // Only show reported confessions
+  const filter: Record<string, any> = { 'reports.0': { $exists: true } };
 
   const [confessions, total] = await Promise.all([
     Confession.find(filter)
-      .sort({ createdAt: -1 })
+      .sort({ 'reports.length': -1, createdAt: -1 })
       .skip((page - 1) * PAGE_SIZE)
       .limit(PAGE_SIZE)
-      .populate('submittedBy', 'name username college')
       .lean(),
     Confession.countDocuments(filter),
   ]);

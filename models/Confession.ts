@@ -28,7 +28,7 @@ const ConfessionSchema = new Schema<IConfessionDocument>(
     },
     isApproved: {
       type: Boolean,
-      default: false,
+      default: true,
     },
     reports: [
       {

@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { format } from 'date-fns';
-import { CheckCircle, Trash2, Flag, GraduationCap, Loader2 } from 'lucide-react';
+import { ShieldCheck, Trash2, Flag, GraduationCap, Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import clsx from 'clsx';
 
@@ -32,7 +32,7 @@ export function ConfessionModerationTable({
   const [loadingId, setLoadingId] = useState<string | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
-  const handleAction = async (id: string, action: 'approve' | 'reject') => {
+  const handleAction = async (id: string, action: 'dismiss_reports' | 'reject') => {
     setLoadingId(id);
     try {
       const res = await fetch(`/api/admin/confessions/${id}`, {
@@ -41,16 +41,8 @@ export function ConfessionModerationTable({
         body: JSON.stringify({ action }),
       });
       if (!res.ok) throw new Error('Action failed');
-
-      if (action === 'reject') {
-        setConfessions((prev) => prev.filter((c) => c._id !== id));
-        toast.success('Confession rejected & deleted');
-      } else {
-        setConfessions((prev) =>
-          prev.map((c) => (c._id === id ? { ...c, isApproved: true } : c))
-        );
-        toast.success('Confession approved');
-      }
+      setConfessions((prev) => prev.filter((c) => c._id !== id));
+      toast.success(action === 'reject' ? 'Confession deleted' : 'Reports dismissed — confession kept');
       onUpdate();
     } catch {
       toast.error('Action failed. Try again.');
@@ -96,9 +88,9 @@ export function ConfessionModerationTable({
   if (confessions.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-text-secondary">
-        <CheckCircle className="w-12 h-12 mb-3 text-status-online opacity-60" />
-        <p className="font-medium text-text-primary">All clear!</p>
-        <p className="text-sm mt-1">No confessions to moderate</p>
+        <ShieldCheck className="w-12 h-12 mb-3 text-status-online opacity-60" />
+        <p className="font-medium text-text-primary">No reported confessions</p>
+        <p className="text-sm mt-1">All confessions are clean 🎉</p>
       </div>
     );
   }
@@ -152,10 +144,9 @@ export function ConfessionModerationTable({
               </th>
               <th className="px-4 py-3 text-left">Content</th>
               <th className="px-4 py-3 text-left w-28">College</th>
-              <th className="px-4 py-3 text-left w-20">Reports</th>
-              <th className="px-4 py-3 text-left w-28">Status</th>
+              <th className="px-4 py-3 text-left w-24">Reports</th>
               <th className="px-4 py-3 text-left w-24">Date</th>
-              <th className="px-4 py-3 text-left w-36">Actions</th>
+              <th className="px-4 py-3 text-left w-44">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -187,6 +178,9 @@ export function ConfessionModerationTable({
                           ⚑ {r.reason}
                         </p>
                       ))}
+                      {confession.reports.length > 2 && (
+                        <p className="text-xs text-text-muted">+{confession.reports.length - 2} more reports</p>
+                      )}
                     </div>
                   )}
                 </td>
@@ -201,25 +195,9 @@ export function ConfessionModerationTable({
                   )}
                 </td>
                 <td className="px-4 py-3">
-                  {confession.reports.length > 0 ? (
-                    <span className="flex items-center gap-1 text-status-danger font-medium">
-                      <Flag className="w-3.5 h-3.5" />
-                      {confession.reports.length}
-                    </span>
-                  ) : (
-                    <span className="text-text-muted">0</span>
-                  )}
-                </td>
-                <td className="px-4 py-3">
-                  <span
-                    className={clsx(
-                      'text-xs px-2 py-1 rounded-full font-medium',
-                      confession.isApproved
-                        ? 'bg-status-online/15 text-status-online'
-                        : 'bg-status-away/15 text-status-away'
-                    )}
-                  >
-                    {confession.isApproved ? 'Approved' : 'Pending'}
+                  <span className="flex items-center gap-1 text-status-danger font-semibold">
+                    <Flag className="w-3.5 h-3.5" />
+                    {confession.reports.length}
                   </span>
                 </td>
                 <td className="px-4 py-3 text-xs text-text-muted">
@@ -231,19 +209,20 @@ export function ConfessionModerationTable({
                       <Loader2 className="w-4 h-4 animate-spin text-text-muted" />
                     ) : (
                       <>
-                        {!confession.isApproved && (
-                          <button
-                            onClick={() => handleAction(confession._id, 'approve')}
-                            className="p-1.5 rounded-lg bg-status-online/15 text-status-online hover:bg-status-online/25 transition-colors"
-                            title="Approve"
-                          >
-                            <CheckCircle className="w-3.5 h-3.5" />
-                          </button>
-                        )}
+                        {/* Dismiss — keep confession, clear reports */}
+                        <button
+                          onClick={() => handleAction(confession._id, 'dismiss_reports')}
+                          className="flex items-center gap-1 px-2 py-1 rounded-lg bg-status-online/15 text-status-online hover:bg-status-online/25 transition-colors text-xs font-medium"
+                          title="Dismiss reports — keep confession"
+                        >
+                          <ShieldCheck className="w-3.5 h-3.5" />
+                          Dismiss
+                        </button>
+                        {/* Delete — remove confession entirely */}
                         <button
                           onClick={() => handleDelete(confession._id)}
                           className="p-1.5 rounded-lg bg-status-danger/15 text-status-danger hover:bg-status-danger/25 transition-colors"
-                          title="Delete"
+                          title="Delete confession"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>

@@ -25,12 +25,12 @@ export async function PATCH(
 
   await connectDB();
 
-  const { action } = await req.json(); // 'approve' | 'reject'
+  const { action } = await req.json(); // 'dismiss_reports' | 'reject'
 
-  if (action === 'approve') {
+  if (action === 'dismiss_reports') {
     const confession = await Confession.findByIdAndUpdate(
       params.id,
-      { isApproved: true },
+      { $set: { reports: [] } },
       { new: true }
     );
     return NextResponse.json({ confession });
@@ -41,7 +41,7 @@ export async function PATCH(
     return NextResponse.json({ success: true });
   }
 
-  return NextResponse.json({ error: 'Invalid action. Use approve or reject.' }, { status: 400 });
+  return NextResponse.json({ error: 'Invalid action. Use dismiss_reports or reject.' }, { status: 400 });
 }
 
 // ── DELETE /api/admin/confessions/[id] ────────────────────────────────────────
