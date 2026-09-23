@@ -28,8 +28,11 @@ export default function LandingPage() {
     { name: 'DTU', color: 'bg-blue-100/90 text-blue-900 border-blue-300' },
     { name: 'NSUT', color: 'bg-emerald-100/90 text-emerald-900 border-emerald-300' },
     { name: 'IGDTUW', color: 'bg-fuchsia-100/90 text-fuchsia-900 border-fuchsia-300' },
+    { name: 'NIT Delhi', color: 'bg-cyan-100/90 text-cyan-900 border-cyan-300' },
     { name: 'IIIT Delhi', color: 'bg-amber-100/90 text-amber-900 border-amber-300' },
     { name: 'IIT Delhi', color: 'bg-rose-100/90 text-rose-900 border-rose-300' },
+    { name: 'Delhi University (DU)', color: 'bg-purple-100/90 text-purple-900 border-purple-300' },
+    { name: 'IPU', color: 'bg-indigo-100/90 text-indigo-900 border-indigo-300' },
   ];
 
   const features = [
@@ -41,7 +44,7 @@ export default function LandingPage() {
     {
       icon: '🪅',
       title: 'Campus & Festive Group Chats',
-      desc: 'Pre-built, persistent chat channels for DTU, NSUT, IGDTUW, IIIT, Girls Corner, Boys Zone, and Navratri hype rooms.',
+      desc: 'Pre-built, persistent chat channels for DTU, NSUT, IGDTUW, IIIT, DU, IPU, Girls Corner, Boys Zone, and Navratri hype rooms.',
     },
     {
       icon: '🎯',
