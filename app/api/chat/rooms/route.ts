@@ -16,7 +16,7 @@ export async function GET(req: NextRequest) {
   await connectDB();
 
   const user = session.user as any;
-  const userId = new mongoose.Types.ObjectId(user._id);
+  const userId = new mongoose.Types.ObjectId(user.id ?? user._id);
   const userCollege: string = user.college ?? '';
   const userGender: string = user.gender ?? 'all';
 
@@ -90,7 +90,7 @@ export async function POST(req: NextRequest) {
 
   await connectDB();
 
-  const myId = new mongoose.Types.ObjectId(user._id);
+  const myId = new mongoose.Types.ObjectId(user.id ?? user._id);
   const theirId = new mongoose.Types.ObjectId(targetUserId);
 
   if (myId.equals(theirId)) {
