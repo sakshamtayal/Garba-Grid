@@ -1,0 +1,301 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── Base resets & Festive Royal Parchment Palette ──────────────────────── */
+@layer base {
+  :root {
+    --color-primary: #FDF8ED;
+    --color-secondary: #F5ECD7;
+    --color-tertiary: #EFE1C3;
+    --color-card: #FFFDF9;
+    --color-marigold: #E65100;
+    --color-pink: #D81B60;
+    --color-gold: #C59B27;
+    --color-peacock: #0D7685;
+    --color-text-primary: #2A1810;
+    --color-text-secondary: #664938;
+    --color-text-muted: #967A66;
+    --color-border: #EADBBF;
+  }
+
+  * {
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    background-color: #FDF8ED;
+    background-image: 
+      radial-gradient(ellipse at 10% 20%, rgba(255, 140, 0, 0.08) 0%, transparent 50%),
+      radial-gradient(ellipse at 90% 10%, rgba(216, 27, 96, 0.06) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 80%, rgba(212, 175, 55, 0.09) 0%, transparent 60%);
+    color: #2A1810;
+    font-family: 'Inter', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    min-height: 100dvh;
+    overflow-x: hidden;
+  }
+
+  /* Custom scrollbar — warm gold theme */
+  ::-webkit-scrollbar {
+    width: 7px;
+    height: 7px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #F5ECD7;
+    border-radius: 999px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #D4AF37;
+    border-radius: 999px;
+    transition: background 0.2s;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #E65100;
+  }
+
+  /* Firefox */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #D4AF37 #F5ECD7;
+  }
+
+  /* Custom text selection */
+  ::selection {
+    background-color: rgba(230, 81, 0, 0.25);
+    color: #2A1810;
+  }
+
+  /* Custom focus rings in marigold */
+  :focus-visible {
+    outline: 2px solid #E65100;
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+
+  button:focus {
+    outline: none;
+  }
+
+  button:focus-visible {
+    outline: 2px solid #E65100;
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+
+  main {
+    animation: fadeIn 0.25s ease-out;
+  }
+}
+
+/* ─── Component classes ────────────────────────────────────────────────────── */
+@layer components {
+  /* Warm Ivory Glass Card */
+  .glass {
+    background: rgba(255, 253, 249, 0.88);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(234, 219, 191, 0.95);
+    box-shadow: 0 4px 24px rgba(140, 100, 40, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  }
+
+  /* Royal Parchment Paper Texture */
+  .parchment-card {
+    background: linear-gradient(145deg, #FFFDF9 0%, #FAF2E1 100%);
+    border: 1.5px solid #EADBBF;
+    box-shadow: 0 4px 20px rgba(140, 100, 40, 0.08), inset 0 0 40px rgba(212, 175, 55, 0.04);
+  }
+
+  /* Royal Conic Border */
+  .gradient-border {
+    position: relative;
+    background: #FFFDF9;
+    border-radius: 1rem;
+  }
+
+  .gradient-border::before {
+    content: '';
+    position: absolute;
+    inset: -1.5px;
+    border-radius: inherit;
+    padding: 1.5px;
+    background: conic-gradient(
+      from var(--angle, 0deg),
+      #E65100,
+      #D81B60,
+      #C59B27,
+      #0D7685,
+      #E65100
+    );
+    -webkit-mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    animation: borderSpin 3s linear infinite;
+  }
+
+  /* Festival rotating border */
+  .festival-border {
+    position: relative;
+    border-radius: 1rem;
+    isolation: isolate;
+  }
+
+  .festival-border::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: inherit;
+    background: linear-gradient(135deg, #E65100 0%, #D81B60 50%, #C59B27 100%);
+    background-size: 300% 300%;
+    animation: borderSpin 3s ease infinite;
+    z-index: -1;
+    border-radius: calc(1rem + 2px);
+  }
+
+  .festival-border::after {
+    content: '';
+    position: absolute;
+    inset: 1px;
+    background: #FFFDF9;
+    border-radius: calc(1rem - 1px);
+    z-index: -1;
+  }
+
+  /* Shimmer loading placeholder */
+  .skeleton {
+    background: linear-gradient(
+      90deg,
+      #F5ECD7 25%,
+      #EFE1C3 50%,
+      #F5ECD7 75%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 2s linear infinite;
+    border-radius: 0.5rem;
+  }
+
+  /* Dandiya loader container */
+  .dandiya-loader {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+  }
+
+  .dandiya-loader .stick-left {
+    width: 4px;
+    height: 24px;
+    background: linear-gradient(135deg, #E65100, #C59B27);
+    border-radius: 9999px;
+    transform-origin: bottom center;
+    animation: dandiayaClick 0.8s ease-in-out infinite;
+  }
+
+  .dandiya-loader .stick-right {
+    width: 4px;
+    height: 24px;
+    background: linear-gradient(135deg, #D81B60, #E65100);
+    border-radius: 9999px;
+    transform-origin: bottom center;
+    animation: dandiayaClick 0.8s ease-in-out infinite reverse;
+  }
+
+  /* Diya flame */
+  .diya-flame {
+    animation: diyaPulse 1.5s ease-in-out infinite;
+    filter: drop-shadow(0 0 8px rgba(230, 81, 0, 0.7));
+  }
+
+  /* Festival gradient text */
+  .gradient-text {
+    background: linear-gradient(135deg, #E65100 0%, #D81B60 50%, #C59B27 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  /* Warm glow text */
+  .glow-text {
+    text-shadow: 0 0 20px rgba(230, 81, 0, 0.25), 0 0 35px rgba(212, 175, 55, 0.2);
+  }
+
+  /* Marigold glow box */
+  .glow-marigold {
+    box-shadow: 0 4px 20px rgba(230, 81, 0, 0.2), 0 0 30px rgba(230, 81, 0, 0.1);
+  }
+
+  /* Pink glow box */
+  .glow-pink {
+    box-shadow: 0 4px 20px rgba(216, 27, 96, 0.2), 0 0 30px rgba(216, 27, 96, 0.1);
+  }
+
+  /* Mandala geometric pattern background on parchment */
+  .mandala-bg {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='none' stroke='%23C59B27' stroke-opacity='0.12' stroke-width='0.75'/%3E%3Ccircle cx='50' cy='50' r='35' fill='none' stroke='%23E65100' stroke-opacity='0.08' stroke-width='0.75'/%3E%3Ccircle cx='50' cy='50' r='25' fill='none' stroke='%23D81B60' stroke-opacity='0.08' stroke-width='0.75'/%3E%3C/svg%3E");
+    background-size: 100px 100px;
+  }
+
+  /* Card hover lift */
+  .card-hover {
+    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+                box-shadow 0.2s ease,
+                border-color 0.2s ease;
+  }
+
+  .card-hover:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 36px rgba(140, 100, 40, 0.14), 0 0 20px rgba(212, 175, 55, 0.18);
+    border-color: #D4AF37;
+  }
+
+  /* Floating animation wrapper */
+  .float {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  /* Pulse glow */
+  .pulse-glow {
+    animation: pulseGlow 2s ease-in-out infinite;
+  }
+
+  /* Safe area padding for iOS notch */
+  .safe-bottom {
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+
+  .safe-top {
+    padding-top: max(0px, env(safe-area-inset-top));
+  }
+}
+
+/* ─── Custom property animation for conic-gradient angle ──────────────────── */
+@property --angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@keyframes rotate-angle {
+  to {
+    --angle: 360deg;
+  }
+}
+
+.gradient-border::before {
+  animation: rotate-angle 3s linear infinite, borderSpin 3s linear infinite;
+}
