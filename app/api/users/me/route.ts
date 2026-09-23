@@ -16,6 +16,7 @@ const UpdateProfileSchema = z.object({
   dandiayaSkillLevel: z
     .enum(['professional', 'chaos_merchant', 'left_right_struggler'])
     .optional(),
+  college: z.string().min(2).max(30).optional(),
   profilePicture: z.string().optional(),
 });
 
@@ -90,6 +91,7 @@ export async function PATCH(req: Request) {
     if (data.allowDirectDMs !== undefined) updates.allowDirectDMs = data.allowDirectDMs;
     if (data.dandiayaSkillLevel !== undefined)
       updates.dandiayaSkillLevel = data.dandiayaSkillLevel;
+    if (data.college !== undefined) updates.college = data.college.trim();
 
     // Handle profile picture upload
     if (data.profilePicture && data.profilePicture.startsWith('data:image/')) {

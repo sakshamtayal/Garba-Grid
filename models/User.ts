@@ -32,8 +32,9 @@ const UserSchema = new Schema<IUserDocument>(
     },
     college: {
       type: String,
-      enum: ['DTU', 'NSUT', 'IGDTUW', 'IIIT', 'IIT Delhi', 'Other'] as College[],
       required: [true, 'College is required'],
+      trim: true,
+      maxlength: [30, 'College name cannot exceed 30 characters'],
     },
     age: {
       type: Number,

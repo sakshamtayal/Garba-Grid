@@ -38,7 +38,7 @@ function MemberAvatar({ member, size = 'md' }: { member: PopulatedMember; size?:
       className={clsx(
         'rounded-full border-2 border-bg-card flex items-center justify-center font-bold flex-shrink-0 relative',
         sizeClass,
-        college ? COLLEGE_BG_CLASSES[college] : 'bg-bg-secondary text-text-secondary border-border-primary'
+        college ? (COLLEGE_BG_CLASSES[college] || COLLEGE_BG_CLASSES.Other) : 'bg-bg-secondary text-text-secondary border-border-primary'
       )}
     >
       {user?.profilePicture ? (
@@ -153,7 +153,7 @@ export function SquadCard({ squad, currentUserId, onDisbanded, index = 0 }: Squa
       {colleges.length > 0 && (
         <div className="flex flex-wrap gap-1.5">
           {colleges.map((college) => (
-            <span key={college} className={clsx('text-[10px] px-2 py-0.5 rounded-full font-medium', COLLEGE_BG_CLASSES[college])}>
+            <span key={college} className={clsx('text-[10px] px-2 py-0.5 rounded-full font-medium', COLLEGE_BG_CLASSES[college] || COLLEGE_BG_CLASSES.Other)}>
               {college}
             </span>
           ))}

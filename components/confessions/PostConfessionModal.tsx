@@ -30,8 +30,10 @@ const COLLEGES: (College | 'Delhi-NCR Wide')[] = [
   'DTU',
   'NSUT',
   'IGDTUW',
+  'NIT',
   'IIIT',
   'IIT Delhi',
+  'DU',
   'Other',
 ];
 

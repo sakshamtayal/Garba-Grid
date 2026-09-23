@@ -81,12 +81,14 @@ export interface MutualMatch {
 
 // ─── College Metadata ─────────────────────────────────────────────────────────
 
-export const COLLEGE_COLORS: Record<College, string> = {
+export const COLLEGE_COLORS: Record<string, string> = {
   DTU: 'bg-sky-100 text-sky-900 border-sky-300 font-semibold',
   NSUT: 'bg-emerald-100 text-emerald-900 border-emerald-300 font-semibold',
   IGDTUW: 'bg-fuchsia-100 text-fuchsia-900 border-fuchsia-300 font-semibold',
+  NIT: 'bg-cyan-100 text-cyan-900 border-cyan-300 font-semibold',
   IIIT: 'bg-amber-100 text-amber-900 border-amber-300 font-semibold',
   'IIT Delhi': 'bg-rose-100 text-rose-900 border-rose-300 font-semibold',
+  DU: 'bg-purple-100 text-purple-900 border-purple-300 font-semibold',
   Other: 'bg-stone-100 text-stone-800 border-stone-300 font-semibold',
 };
 
@@ -111,11 +113,13 @@ export const SKILL_META: Record<
   },
 };
 
-export const COLLEGES: College[] = [
+export const COLLEGES: string[] = [
   'DTU',
   'NSUT',
   'IGDTUW',
+  'NIT',
   'IIIT',
   'IIT Delhi',
+  'DU',
   'Other',
 ];

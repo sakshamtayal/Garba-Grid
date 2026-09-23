@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import imageCompression from 'browser-image-compression';
-import { UserProfile, College, DandiayaSkillLevel, Gender } from '@/types';
+import { UserProfile, College, DandiayaSkillLevel, Gender, COLLEGES } from '@/types';
 import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
 import Avatar from '@/components/ui/Avatar';
@@ -16,7 +16,7 @@ import axios from 'axios';
 const profileSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
   gender: z.enum(['male', 'female', 'non_binary', 'prefer_not_to_say']),
-  college: z.enum(['DTU', 'NSUT', 'IGDTUW', 'IIIT', 'IIT Delhi', 'Other']),
+  college: z.string().min(2, 'College is required').max(30),
   age: z.coerce.number().min(16).max(35).optional().or(z.literal('')),
   instagramId: z.string().optional(),
   bio: z.string().max(250, 'Bio max 250 characters').optional(),
@@ -59,6 +59,11 @@ export default function EditProfileForm({ user, onProfileUpdated, onCancel }: Ed
   const [hobbyInput, setHobbyInput] = useState('');
   const [profilePicture, setProfilePicture] = useState<string>(user.profilePicture || '');
   const [selectedSkill, setSelectedSkill] = useState<DandiayaSkillLevel>(user.dandiayaSkillLevel || 'chaos_merchant');
+  const isPredefined = COLLEGES.includes(user.college) && user.college !== 'Other';
+  const [collegeChoice, setCollegeChoice] = useState<string>(isPredefined ? user.college : 'Other');
+  const [customCollege, setCustomCollege] = useState<string>(
+    isPredefined ? '' : user.college === 'Other' ? '' : user.college
+  );
 
   const {
     register,
@@ -117,8 +122,16 @@ export default function EditProfileForm({ user, onProfileUpdated, onCancel }: Ed
   const onSubmit = async (data: ProfileFormData) => {
     try {
       setLoading(true);
+      const finalCollege =
+        collegeChoice === 'Other'
+          ? customCollege.trim()
+            ? customCollege.trim().toUpperCase()
+            : 'Other'
+          : collegeChoice;
+
       const payload = {
         ...data,
+        college: finalCollege,
         age: data.age === '' ? undefined : data.age,
         hobbies,
         profilePicture,
@@ -172,15 +185,52 @@ export default function EditProfileForm({ user, onProfileUpdated, onCancel }: Ed
             College
           </label>
           <select
-            {...register('college')}
+            value={collegeChoice}
+            onChange={(e) => {
+              const val = e.target.value;
+              setCollegeChoice(val);
+              if (val !== 'Other') {
+                setValue('college', val, { shouldValidate: true });
+              } else {
+                setValue(
+                  'college',
+                  customCollege.trim() ? customCollege.trim().toUpperCase() : 'Other',
+                  { shouldValidate: true }
+                );
+              }
+            }}
             className="w-full bg-bg-secondary border border-border-primary focus:border-accent-marigold rounded-xl p-3 text-text-primary text-sm"
           >
-            {['DTU', 'NSUT', 'IGDTUW', 'IIIT', 'IIT Delhi', 'Other'].map((c) => (
+            {COLLEGES.map((c) => (
               <option key={c} value={c}>
                 {c}
               </option>
             ))}
           </select>
+          {collegeChoice === 'Other' && (
+            <div className="mt-2 space-y-1">
+              <input
+                type="text"
+                maxLength={10}
+                placeholder="Enter college name (max 10 alphabets)"
+                value={customCollege}
+                onChange={(e) => {
+                  const alphabetsOnly = e.target.value.replace(/[^A-Za-z\s]/g, '').slice(0, 10);
+                  setCustomCollege(alphabetsOnly);
+                  setValue(
+                    'college',
+                    alphabetsOnly.trim() ? alphabetsOnly.trim().toUpperCase() : 'Other',
+                    { shouldValidate: true }
+                  );
+                }}
+                className="w-full bg-bg-secondary border border-border-primary focus:border-accent-marigold rounded-xl p-2.5 text-text-primary text-sm uppercase placeholder:normal-case font-medium"
+              />
+              <div className="flex justify-between items-center text-[10px] text-text-muted px-1">
+                <span>Alphabets only</span>
+                <span>{customCollege.length}/10</span>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 

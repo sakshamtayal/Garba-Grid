@@ -28,7 +28,12 @@ const RegisterSchema = z.object({
   password: z.string().min(8, 'Password must be at least 8 characters'),
   name: z.string().min(2, 'Name must be at least 2 characters').max(60),
   gender: z.enum(['male', 'female', 'non_binary', 'prefer_not_to_say'] as const),
-  college: z.enum(['DTU', 'NSUT', 'IGDTUW', 'IIIT', 'IIT Delhi', 'Other'] as const),
+  college: z.string().min(2, 'College is required').max(30),
+  customCollege: z
+    .string()
+    .max(10, 'College name cannot exceed 10 alphabets')
+    .regex(/^[A-Za-z\s]*$/, 'College name can only contain alphabets')
+    .optional(),
   age: z.number().int().min(17).max(30).optional(),
   instagramId: z.string().max(50).optional(),
   bio: z.string().max(300).default(''),
@@ -65,6 +70,7 @@ export async function POST(req: Request) {
       name,
       gender,
       college,
+      customCollege,
       age,
       instagramId,
       bio,
@@ -72,6 +78,11 @@ export async function POST(req: Request) {
       dandiayaSkillLevel,
       profilePicture,
     } = parsed.data;
+
+    let finalCollege = college.trim();
+    if (college === 'Other' && customCollege && customCollege.trim()) {
+      finalCollege = customCollege.trim().slice(0, 10).toUpperCase();
+    }
 
     await connectDB();
 
@@ -117,7 +128,7 @@ export async function POST(req: Request) {
       password: hashedPassword,
       name: name.trim(),
       gender: gender as Gender,
-      college: college as College,
+      college: finalCollege as College,
       age,
       instagramId: instagramId?.trim() || undefined,
       bio: bio || '',

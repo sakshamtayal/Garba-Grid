@@ -131,17 +131,19 @@ export function fileToBase64(file: File): Promise<string> {
 
 // ─── College color mapping ────────────────────────────────────────────────────
 
-const COLLEGE_COLORS: Record<College, { bg: string; text: string; border: string }> = {
+const COLLEGE_COLORS: Record<string, { bg: string; text: string; border: string }> = {
   DTU: { bg: '#e0f2fe', text: '#0369a1', border: '#7dd3fc' },
   NSUT: { bg: '#dcfce7', text: '#15803d', border: '#86efac' },
   IGDTUW: { bg: '#fae8ff', text: '#86198f', border: '#f0abfc' },
+  NIT: { bg: '#cffafe', text: '#0e7490', border: '#67e8f9' },
   IIIT: { bg: '#fef3c7', text: '#b45309', border: '#fcd34d' },
   'IIT Delhi': { bg: '#ffe4e6', text: '#be123c', border: '#fda4af' },
+  DU: { bg: '#f3e8ff', text: '#7e22ce', border: '#d8b4fe' },
   Other: { bg: '#f5f5f4', text: '#44403c', border: '#d6d3d1' },
 };
 
 export function getCollegeColor(college: College) {
-  return COLLEGE_COLORS[college] ?? COLLEGE_COLORS.Other;
+  return (COLLEGE_COLORS as Record<string, any>)[college] ?? COLLEGE_COLORS.Other;
 }
 
 /**

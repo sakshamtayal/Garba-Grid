@@ -31,12 +31,14 @@ const sizeMap: Record<BadgeSize, string> = {
 
 // ─── College badge styles ─────────────────────────────────────────────────────
 
-const COLLEGE_TW: Record<College, string> = {
+const COLLEGE_TW: Record<string, string> = {
   DTU:        'bg-sky-100 text-sky-900 border border-sky-300 font-semibold shadow-sm',
   NSUT:       'bg-emerald-100 text-emerald-900 border border-emerald-300 font-semibold shadow-sm',
   IGDTUW:     'bg-fuchsia-100 text-fuchsia-900 border border-fuchsia-300 font-semibold shadow-sm',
+  NIT:        'bg-cyan-100 text-cyan-900 border border-cyan-300 font-semibold shadow-sm',
   IIIT:       'bg-amber-100 text-amber-900 border border-amber-300 font-semibold shadow-sm',
   'IIT Delhi':'bg-rose-100 text-rose-900 border border-rose-300 font-semibold shadow-sm',
+  DU:         'bg-purple-100 text-purple-900 border border-purple-300 font-semibold shadow-sm',
   Other:      'bg-stone-100 text-stone-800 border border-stone-300 font-semibold shadow-sm',
 };
 
@@ -88,7 +90,7 @@ export function Badge({
   let styles = '';
 
   if (variant === 'college' && college) {
-    styles = COLLEGE_TW[college];
+    styles = COLLEGE_TW[college] || COLLEGE_TW.Other;
     content = content ?? college;
   } else if (variant === 'skill' && skill) {
     const meta = SKILL_META[skill];

@@ -34,7 +34,7 @@ export default function ProfileView({
   onMessage,
 }: ProfileViewProps) {
   const skill = SKILL_META[profile.dandiayaSkillLevel];
-  const collegeColor = COLLEGE_COLORS[profile.college];
+  const collegeColor = COLLEGE_COLORS[profile.college] || COLLEGE_COLORS.Other;
 
   const isCreator = profile.username === 'saksham_tayal';
 

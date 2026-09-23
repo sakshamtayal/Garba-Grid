@@ -32,7 +32,7 @@ export default function ProfileCard({
   const [bioExpanded, setBioExpanded] = useState(false);
 
   const skill = SKILL_META[profile.dandiayaSkillLevel];
-  const collegeColor = COLLEGE_COLORS[profile.college];
+  const collegeColor = COLLEGE_COLORS[profile.college] || COLLEGE_COLORS.Other;
 
   const truncatedBio =
     profile.bio && profile.bio.length > 80

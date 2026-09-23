@@ -28,12 +28,29 @@ const Step1Schema = z
     confirmPassword: z.string(),
     name: z.string().min(2, 'At least 2 characters').max(60),
     gender: z.enum(['male', 'female', 'non_binary', 'prefer_not_to_say'] as const),
-    college: z.enum(['DTU', 'NSUT', 'IGDTUW', 'IIIT', 'IIT Delhi', 'Other'] as const),
+    college: z.string().min(1, 'Please select a college'),
+    customCollege: z
+      .string()
+      .max(10, 'Maximum 10 alphabets')
+      .regex(/^[A-Za-z\s]*$/, 'Alphabets only')
+      .optional(),
   })
   .refine((d) => d.password === d.confirmPassword, {
     message: "Passwords don't match",
     path: ['confirmPassword'],
-  });
+  })
+  .refine(
+    (d) => {
+      if (d.college === 'Other') {
+        return !!d.customCollege && d.customCollege.trim().length > 0;
+      }
+      return true;
+    },
+    {
+      message: 'Please enter your college name (max 10 alphabets)',
+      path: ['customCollege'],
+    },
+  );
 
 const Step2Schema = z.object({
   age: z.number().int().min(17).max(30).optional(),
@@ -123,9 +140,15 @@ export default function RegisterPage() {
     setIsSubmitting(true);
 
     try {
+      const finalCollege =
+        step1Data.college === 'Other' && step1Data.customCollege?.trim()
+          ? step1Data.customCollege.trim().toUpperCase()
+          : step1Data.college;
+
       const payload = {
         ...step1Data,
         ...step2Data,
+        college: finalCollege,
         profilePicture: skip ? undefined : profilePicture || undefined,
       };
 
@@ -259,6 +282,7 @@ function Step1Form({
   const selectedGender = watch('gender');
   const selectedCollege = watch('college');
   const usernameValue = watch('username');
+  const customCollegeValue = watch('customCollege') || '';
 
   // Debounced real-time username availability check
   const checkUsername = useCallback(async (value: string) => {
@@ -398,7 +422,12 @@ function Step1Form({
             <button
               key={c}
               type="button"
-              onClick={() => setValue('college', c as College, { shouldValidate: true })}
+              onClick={() => {
+                setValue('college', c, { shouldValidate: true });
+                if (c !== 'Other') {
+                  setValue('customCollege', '', { shouldValidate: false });
+                }
+              }}
               className={clsx(
                 'p-3 rounded-xl border text-sm font-medium transition-all duration-200 text-center',
                 selectedCollege === c
@@ -412,6 +441,36 @@ function Step1Form({
         </div>
         {errors.college && (
           <p className="text-status-danger text-xs mt-1">{errors.college.message}</p>
+        )}
+
+        {/* Custom College Input if Other is selected */}
+        {selectedCollege === 'Other' && (
+          <div className="mt-3 bg-bg-secondary/60 border border-border-primary rounded-2xl p-3.5 space-y-2">
+            <label className="block text-xs font-semibold text-text-secondary uppercase tracking-wider">
+              Enter College Name <span className="text-text-muted font-normal normal-case">(max 10 alphabets)</span>
+            </label>
+            <input
+              type="text"
+              maxLength={10}
+              placeholder="e.g. MAIT, BVP"
+              value={customCollegeValue}
+              onChange={(e) => {
+                const alphabetsOnly = e.target.value.replace(/[^A-Za-z\s]/g, '').slice(0, 10);
+                setValue('customCollege', alphabetsOnly, { shouldValidate: true });
+              }}
+              className={clsx(
+                inputCls(!!errors.customCollege),
+                'uppercase placeholder:normal-case font-medium',
+              )}
+            />
+            <div className="flex justify-between items-center text-[11px] text-text-muted px-1">
+              <span>Alphabets only</span>
+              <span>{customCollegeValue.length}/10</span>
+            </div>
+            {errors.customCollege && (
+              <p className="text-status-danger text-xs">{errors.customCollege.message}</p>
+            )}
+          </div>
         )}
       </div>
 

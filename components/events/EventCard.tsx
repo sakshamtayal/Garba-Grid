@@ -108,7 +108,7 @@ export function EventCard({
                 title={college}
                 className={clsx(
                   'w-6 h-6 rounded-full border-2 border-bg-card flex items-center justify-center text-[9px] font-bold',
-                  COLLEGE_BG_CLASSES[college as College]
+                  COLLEGE_BG_CLASSES[college as College] || COLLEGE_BG_CLASSES.Other
                 )}
               >
                 {college.slice(0, 1)}

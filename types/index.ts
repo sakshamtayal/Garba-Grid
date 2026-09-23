@@ -11,27 +11,43 @@ export type College =
   | 'DTU'
   | 'NSUT'
   | 'IGDTUW'
+  | 'NIT'
   | 'IIIT'
   | 'IIT Delhi'
-  | 'Other';
+  | 'DU'
+  | 'Other'
+  | (string & {});
 
-export const COLLEGES: College[] = ['DTU', 'NSUT', 'IGDTUW', 'IIIT', 'IIT Delhi', 'Other'];
+export const COLLEGES: string[] = [
+  'DTU',
+  'NSUT',
+  'IGDTUW',
+  'NIT',
+  'IIIT',
+  'IIT Delhi',
+  'DU',
+  'Other',
+];
 
-export const COLLEGE_COLORS: Record<College, string> = {
+export const COLLEGE_COLORS: Record<string, string> = {
   DTU: '#3B82F6',
   NSUT: '#22C55E',
   IGDTUW: '#A855F7',
+  NIT: '#06B6D4',
   IIIT: '#F97316',
   'IIT Delhi': '#EF4444',
+  DU: '#8B5CF6',
   Other: '#6B7280',
 };
 
-export const COLLEGE_BG_CLASSES: Record<College, string> = {
+export const COLLEGE_BG_CLASSES: Record<string, string> = {
   DTU: 'bg-sky-100 text-sky-900 border border-sky-300 font-semibold',
   NSUT: 'bg-emerald-100 text-emerald-900 border border-emerald-300 font-semibold',
   IGDTUW: 'bg-fuchsia-100 text-fuchsia-900 border border-fuchsia-300 font-semibold',
+  NIT: 'bg-cyan-100 text-cyan-900 border border-cyan-300 font-semibold',
   IIIT: 'bg-amber-100 text-amber-900 border border-amber-300 font-semibold',
   'IIT Delhi': 'bg-rose-100 text-rose-900 border border-rose-300 font-semibold',
+  DU: 'bg-purple-100 text-purple-900 border border-purple-300 font-semibold',
   Other: 'bg-stone-100 text-stone-800 border border-stone-300 font-semibold',
 };
 

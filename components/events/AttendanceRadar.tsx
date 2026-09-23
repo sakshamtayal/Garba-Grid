@@ -25,7 +25,7 @@ export function AttendanceRadar({
   const rows = COLLEGES.map((college) => ({
     college,
     count: collegeBreakdown[college] ?? 0,
-    color: COLLEGE_COLORS[college],
+    color: COLLEGE_COLORS[college] ?? COLLEGE_COLORS.Other,
     pct: ((collegeBreakdown[college] ?? 0) / maxCount) * 100,
   })).filter((r) => r.count > 0);
 
