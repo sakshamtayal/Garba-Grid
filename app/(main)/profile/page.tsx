@@ -26,7 +26,7 @@ export default function ProfilePage() {
     try {
       setLoading(true);
       const res = await axios.get('/api/users/me');
-      setProfile(res.data.user || null);
+      setProfile(res.data.data || null);
     } catch {
       toast.error('Failed to load profile.');
     } finally {
