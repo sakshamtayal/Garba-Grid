@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -243,6 +243,7 @@ function Step1Form({
 }) {
   const [showPw, setShowPw] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [usernameStatus, setUsernameStatus] = useState<'idle' | 'checking' | 'available' | 'taken'>('idle');
 
   const {
     register,
@@ -257,6 +258,30 @@ function Step1Form({
 
   const selectedGender = watch('gender');
   const selectedCollege = watch('college');
+  const usernameValue = watch('username');
+
+  // Debounced real-time username availability check
+  const checkUsername = useCallback(async (value: string) => {
+    if (!value || value.length < 3 || !/^[a-z0-9_]+$/.test(value)) {
+      setUsernameStatus('idle');
+      return;
+    }
+    setUsernameStatus('checking');
+    try {
+      const res = await fetch(`/api/auth/check-username?username=${encodeURIComponent(value)}`);
+      const json = await res.json();
+      setUsernameStatus(json.available ? 'available' : 'taken');
+    } catch {
+      setUsernameStatus('idle');
+    }
+  }, []);
+
+  useEffect(() => {
+    setUsernameStatus('idle');
+    if (!usernameValue || usernameValue.length < 3) return;
+    const timer = setTimeout(() => checkUsername(usernameValue), 600);
+    return () => clearTimeout(timer);
+  }, [usernameValue, checkUsername]);
 
   return (
     <motion.form
@@ -270,11 +295,34 @@ function Step1Form({
     >
       {/* Username */}
       <Field label="Username" error={errors.username?.message}>
-        <input
-          {...register('username')}
-          placeholder="your_username"
-          className={inputCls(!!errors.username)}
-        />
+        <div className="relative">
+          <input
+            {...register('username')}
+            placeholder="your_username"
+            className={clsx(
+              inputCls(!!errors.username || usernameStatus === 'taken'),
+              'pr-10',
+              usernameStatus === 'available' && !errors.username && 'border-status-online focus:ring-status-online/50',
+            )}
+          />
+          <div className="absolute right-3 top-1/2 -translate-y-1/2">
+            {usernameStatus === 'checking' && (
+              <div className="w-4 h-4 border-2 border-accent-marigold border-t-transparent rounded-full animate-spin" />
+            )}
+            {usernameStatus === 'available' && !errors.username && (
+              <Check size={16} className="text-status-online" />
+            )}
+            {usernameStatus === 'taken' && (
+              <X size={16} className="text-status-danger" />
+            )}
+          </div>
+        </div>
+        {usernameStatus === 'available' && !errors.username && (
+          <p className="text-status-online text-xs mt-1">✓ Username is available!</p>
+        )}
+        {usernameStatus === 'taken' && !errors.username && (
+          <p className="text-status-danger text-xs mt-1">✗ Username already taken — try another</p>
+        )}
       </Field>
 
       {/* Name */}
