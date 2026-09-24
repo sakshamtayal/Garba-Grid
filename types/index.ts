@@ -155,6 +155,8 @@ export interface IEvent {
   price: number;
   bookingLink: string;
   imageUrl: string;
+  ticketPlatform?: string;
+  dateRange?: string;
   attendees: Array<{ userId: string; college: College }>;
   createdAt: Date;
   isActive: boolean;
@@ -237,6 +239,8 @@ export interface IEventDocument
     Document {
   _id: Types.ObjectId;
   attendees: Array<{ userId: Types.ObjectId; college: College }>;
+  ticketPlatform?: string;
+  dateRange?: string;
 }
 
 export interface ISquadDocument

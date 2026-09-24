@@ -39,6 +39,14 @@ const EventSchema = new Schema<IEventDocument>(
       type: String,
       default: '',
     },
+    ticketPlatform: {
+      type: String,
+      default: '',
+    },
+    dateRange: {
+      type: String,
+      default: '',
+    },
     attendees: [
       {
         userId: {

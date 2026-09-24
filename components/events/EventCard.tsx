@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import { motion } from 'framer-motion';
-import { MapPin, Calendar, ExternalLink, Users, Check } from 'lucide-react';
+import { MapPin, Calendar, ExternalLink, Users, Check, Ticket } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import clsx from 'clsx';
 import { IEvent, College, COLLEGE_BG_CLASSES } from '@/types';
@@ -22,6 +22,19 @@ const GRADIENT_FALLBACKS = [
   'from-accent-gold/30 to-accent-marigold/30',
   'from-purple-500/30 to-accent-pink/30',
 ];
+
+// Platform badge styling
+function getPlatformStyle(platform?: string) {
+  if (!platform) return null;
+  const p = platform.toLowerCase();
+  if (p.includes('district')) {
+    return { label: platform, cls: 'bg-indigo-900/80 text-indigo-200 border border-indigo-500/40' };
+  }
+  if (p.includes('book my show') || p.includes('bookmyshow') || p.includes('bms')) {
+    return { label: platform, cls: 'bg-red-900/80 text-red-200 border border-red-500/40' };
+  }
+  return { label: platform, cls: 'bg-bg-secondary/80 text-text-secondary border border-border-primary' };
+}
 
 export function EventCard({
   event,
@@ -45,6 +58,7 @@ export function EventCard({
     : { label: `₹${event.price}`, cls: 'bg-amber-100 text-amber-900 border border-amber-300 font-bold' };
 
   const gradientClass = GRADIENT_FALLBACKS[index % GRADIENT_FALLBACKS.length];
+  const platformStyle = getPlatformStyle(event.ticketPlatform);
 
   // Top 3 unique attendee colleges for avatars
   const collegeAvatars = Array.from(new Set(event.attendees.map((a) => a.college))).slice(0, 3);
@@ -71,6 +85,7 @@ export function EventCard({
             placeholder="blur"
             blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            unoptimized
           />
         ) : (
           <div className={clsx('w-full h-full bg-gradient-to-br', gradientClass, 'flex items-center justify-center')}>
@@ -81,6 +96,12 @@ export function EventCard({
         <span className={clsx('absolute top-3 right-3 text-xs font-bold px-3 py-1 rounded-full backdrop-blur-sm', priceDisplay.cls)}>
           {priceDisplay.label}
         </span>
+        {/* Date range chip (bottom-left of image) */}
+        {event.dateRange && (
+          <span className="absolute bottom-3 left-3 text-xs font-semibold px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-sm text-white border border-white/10">
+            📅 {event.dateRange}
+          </span>
+        )}
       </div>
 
       {/* Content */}
@@ -98,6 +119,16 @@ export function EventCard({
           <Calendar className="w-3.5 h-3.5 flex-shrink-0 text-accent-marigold" />
           <span>{formattedDate}</span>
         </div>
+
+        {/* Ticket Platform badge */}
+        {platformStyle && (
+          <div className="flex items-center gap-1.5">
+            <Ticket className="w-3.5 h-3.5 flex-shrink-0 text-text-muted" />
+            <span className={clsx('text-xs font-medium px-2.5 py-0.5 rounded-full', platformStyle.cls)}>
+              {platformStyle.label}
+            </span>
+          </div>
+        )}
 
         {/* Attendees */}
         <div className="flex items-center gap-2">
@@ -158,10 +189,11 @@ export function EventCard({
             href={event.bookingLink}
             target="_blank"
             rel="noopener noreferrer"
-            className="py-2 px-3 rounded-xl border border-border-primary text-text-secondary hover:text-accent-marigold hover:border-accent-marigold/40 transition-colors duration-200 flex items-center"
-            title="Book Now"
+            className="py-2 px-3 rounded-xl border border-border-primary text-text-secondary hover:text-accent-marigold hover:border-accent-marigold/40 transition-colors duration-200 flex items-center gap-1 text-xs font-medium"
+            title="Book Tickets"
           >
             <ExternalLink className="w-4 h-4" />
+            <span className="hidden sm:inline">Book</span>
           </a>
         </div>
       </div>

@@ -12,6 +12,8 @@ const CreateEventSchema = z.object({
   price: z.union([z.number().nonnegative(), z.literal('Free')]),
   bookingLink: z.string().url(),
   imageUrl: z.string().url().optional().or(z.literal('')),
+  ticketPlatform: z.string().optional().or(z.literal('')),
+  dateRange: z.string().optional().or(z.literal('')),
 });
 
 // GET /api/events - List all active events sorted by date

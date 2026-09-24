@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
+import toast from 'react-hot-toast';
 import {
   Users,
   MessageSquare,
@@ -14,6 +15,7 @@ import {
   Clock,
   Loader2,
   RefreshCw,
+  CalendarPlus,
 } from 'lucide-react';
 import clsx from 'clsx';
 import { ConfessionModerationTable } from './ConfessionModerationTable';
@@ -77,6 +79,7 @@ export function AdminPanel({ currentUserId }: { currentUserId: string }) {
   const [confessionStatus, setConfessionStatus] = useState<'pending' | 'approved' | 'reported'>('pending');
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isSeedingEvents, setIsSeedingEvents] = useState(false);
 
   const fetchStats = useCallback(async () => {
     try {
@@ -122,6 +125,23 @@ export function AdminPanel({ currentUserId }: { currentUserId: string }) {
     setIsRefreshing(true);
     await Promise.all([fetchStats(), fetchConfessions(), fetchUsers()]);
     setIsRefreshing(false);
+  };
+
+  const handleSeedEvents = async () => {
+    setIsSeedingEvents(true);
+    try {
+      const res = await fetch('/api/admin/seed-events', { method: 'POST' });
+      const data = await res.json();
+      if (res.ok) {
+        toast.success(`🎪 ${data.message}`);
+      } else {
+        toast.error(data.error ?? 'Seeding failed');
+      }
+    } catch {
+      toast.error('Network error while seeding events');
+    } finally {
+      setIsSeedingEvents(false);
+    }
   };
 
   if (isLoading) {
@@ -177,6 +197,21 @@ export function AdminPanel({ currentUserId }: { currentUserId: string }) {
           >
             <RefreshCw className={clsx('w-3.5 h-3.5', isRefreshing && 'animate-spin')} />
             Refresh data
+          </button>
+
+          {/* Seed Events */}
+          <button
+            onClick={handleSeedEvents}
+            disabled={isSeedingEvents}
+            className="mt-1 w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs text-accent-marigold hover:text-white hover:bg-accent-marigold/20 border border-accent-marigold/30 transition-colors disabled:opacity-50"
+            title="Seed all 15 Delhi-NCR Navratri events into DB"
+          >
+            {isSeedingEvents ? (
+              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+            ) : (
+              <CalendarPlus className="w-3.5 h-3.5" />
+            )}
+            {isSeedingEvents ? 'Seeding…' : 'Seed Events 🎪'}
           </button>
         </div>
       </div>
