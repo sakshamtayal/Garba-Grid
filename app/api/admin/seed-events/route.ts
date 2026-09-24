@@ -10,7 +10,7 @@ export async function POST() {
   try {
     const result = await seedEvents();
     return NextResponse.json(
-      { message: `Seeded ${result.inserted} events, skipped ${result.skipped} already existing.`, ...result },
+      { message: `${result.inserted} inserted, ${result.updated} updated, ${result.skipped} skipped.`, ...result },
       { status: 200 }
     );
   } catch (err) {
