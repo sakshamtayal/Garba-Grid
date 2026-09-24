@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/auth';
 import { seedEvents } from '@/lib/seedEvents';
 
-// POST /api/admin/seed-events — Admin only: seed pre-built events
+// POST /api/admin/seed-events — Admin only: upsert all pre-built events
 export async function POST() {
   const { error } = await requireAdmin();
   if (error) return error;
@@ -10,7 +10,7 @@ export async function POST() {
   try {
     const result = await seedEvents();
     return NextResponse.json(
-      { message: `${result.inserted} inserted, ${result.updated} updated, ${result.skipped} skipped.`, ...result },
+      { message: `✅ ${result.upserted} events upserted with correct prices!`, ...result },
       { status: 200 }
     );
   } catch (err) {

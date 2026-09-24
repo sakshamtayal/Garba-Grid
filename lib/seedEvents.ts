@@ -243,25 +243,20 @@ const EVENTS: SeedEvent[] = [
   },
 ];
 
-export async function seedEvents(): Promise<{ inserted: number; updated: number; skipped: number }> {
+export async function seedEvents(): Promise<{ upserted: number }> {
   await connectDB();
 
-  let inserted = 0;
-  let updated = 0;
-  let skipped = 0;
+  let upserted = 0;
 
   for (const ev of EVENTS) {
-    const exists = await Event.findOne({ title: ev.title }).lean();
-    if (exists) {
-      // Update existing record with latest data (fixes price, etc.)
-      await Event.updateOne({ title: ev.title }, { $set: ev });
-      updated++;
-    } else {
-      await Event.create(ev);
-      inserted++;
-    }
+    await Event.findOneAndUpdate(
+      { title: ev.title },   // match by title
+      { $set: ev },          // always overwrite all fields (price, etc.)
+      { upsert: true, new: true }
+    );
+    upserted++;
   }
 
-  console.log(`Events seed: ${inserted} inserted, ${updated} updated, ${skipped} skipped`);
-  return { inserted, updated, skipped };
+  console.log(`Events upserted: ${upserted}`);
+  return { upserted };
 }
