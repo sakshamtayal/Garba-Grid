@@ -1,15 +1,17 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { UserProfile } from '@/types';
 import ProfileView from '@/components/profile/ProfileView';
 import DandiayaLoader from '@/components/ui/DandiayaLoader';
 import Button from '@/components/ui/Button';
-import { ArrowLeft, Sparkles, Heart } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
+
+type MatchStatus = 'connected' | 'pending' | 'passed' | null;
 
 export default function PublicProfilePage() {
   const params = useParams();
@@ -17,9 +19,83 @@ export default function PublicProfilePage() {
   const { data: session } = useSession();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [matchStatus, setMatchStatus] = useState<MatchStatus>(null);
+  const [dmLoading, setDmLoading] = useState(false);
 
   const username = params.username as string;
   const currentUsername = (session?.user as { username?: string })?.username;
+
+  // ── Fetch the public profile ──────────────────────────────────────────────
+  const fetchPublicProfile = useCallback(async (uname: string) => {
+    try {
+      setLoading(true);
+      const res = await axios.get(`/api/users/${uname}`);
+      const fetchedProfile: UserProfile = res.data.user || null;
+      setProfile(fetchedProfile);
+
+      // After we have the profile, check match status
+      if (fetchedProfile) {
+        checkMatchStatus(fetchedProfile._id);
+      }
+    } catch {
+      toast.error('Could not find this student profile.');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // ── Check match status between current user and this profile ─────────────
+  const checkMatchStatus = async (targetUserId: string) => {
+    try {
+      const res = await fetch('/api/connections');
+      const json = await res.json();
+      if (!json.success) return;
+
+      const { connected, sent } = json.data as {
+        connected: { user: { _id: string } }[];
+        sent: { user: { _id: string } }[];
+      };
+
+      const isConnected = connected.some((c) => c.user._id === targetUserId);
+      if (isConnected) {
+        setMatchStatus('connected');
+        return;
+      }
+
+      const isSent = sent.some((s) => s.user._id === targetUserId);
+      if (isSent) {
+        setMatchStatus('pending');
+        return;
+      }
+
+      setMatchStatus(null);
+    } catch {
+      // silently fail — match status is non-critical
+    }
+  };
+
+  // ── Open or create DM room and navigate to it ────────────────────────────
+  const handleMessage = async () => {
+    if (!profile || dmLoading) return;
+    setDmLoading(true);
+    try {
+      const res = await fetch('/api/chat/rooms', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ targetUserId: profile._id }),
+      });
+      const json = await res.json();
+      if (!res.ok) {
+        toast.error(json.error || 'Could not open DM');
+        return;
+      }
+      router.push(`/chat/${json.room._id}`);
+    } catch {
+      toast.error('Something went wrong');
+    } finally {
+      setDmLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (username && currentUsername && username === currentUsername) {
@@ -29,19 +105,7 @@ export default function PublicProfilePage() {
     if (username) {
       fetchPublicProfile(username);
     }
-  }, [username, currentUsername]);
-
-  const fetchPublicProfile = async (uname: string) => {
-    try {
-      setLoading(true);
-      const res = await axios.get(`/api/users/${uname}`);
-      setProfile(res.data.user || null);
-    } catch {
-      toast.error('Could not find this student profile.');
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [username, currentUsername, fetchPublicProfile]);
 
   if (loading) {
     return (
@@ -73,7 +137,12 @@ export default function PublicProfilePage() {
         <span>Back</span>
       </button>
 
-      <ProfileView profile={profile} isOwnProfile={false} />
+      <ProfileView
+        profile={profile}
+        isOwnProfile={false}
+        matchStatus={matchStatus}
+        onMessage={matchStatus === 'connected' ? handleMessage : undefined}
+      />
     </div>
   );
 }
