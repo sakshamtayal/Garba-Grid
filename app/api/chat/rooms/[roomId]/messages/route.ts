@@ -50,8 +50,21 @@ export async function GET(
   const hasMore = messages.length > PAGE_SIZE;
   if (hasMore) messages.pop();
 
-  const ordered = messages.reverse();
-  const nextCursor = hasMore && ordered.length > 0 ? ordered[0]._id.toString() : null;
+  const ordered = messages.reverse().map((m) => ({
+    _id: m._id.toString(),
+    roomId: m.roomId.toString(),
+    sender: {
+      _id: (m.sender as any)?._id?.toString() ?? '',
+      username: (m.sender as any)?.username ?? '',
+      name: (m.sender as any)?.name ?? 'Unknown',
+      profilePicture: (m.sender as any)?.profilePicture ?? null,
+      college: (m.sender as any)?.college ?? '',
+    },
+    content: m.content,
+    type: m.type,
+    createdAt: m.createdAt instanceof Date ? m.createdAt.toISOString() : String(m.createdAt),
+  }));
+  const nextCursor = hasMore && ordered.length > 0 ? ordered[0]._id : null;
 
   return NextResponse.json({ messages: ordered, nextCursor, hasMore });
 }

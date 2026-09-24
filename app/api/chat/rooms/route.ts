@@ -112,6 +112,18 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  const serializeRoom = (r: any) => ({
+    _id: r._id.toString(),
+    type: r.type,
+    name: r.name,
+    description: r.description,
+    members: (r.members as any[]).map((m: any) => m.toString()),
+    isPrebuilt: r.isPrebuilt,
+    college: r.college,
+    genderFilter: r.genderFilter,
+    lastActivity: r.lastActivity instanceof Date ? r.lastActivity.toISOString() : r.lastActivity,
+  });
+
   // Check if DM already exists
   const existing = await ChatRoom.findOne({
     type: 'dm',
@@ -119,7 +131,7 @@ export async function POST(req: NextRequest) {
   });
 
   if (existing) {
-    return NextResponse.json({ room: existing });
+    return NextResponse.json({ room: serializeRoom(existing) });
   }
 
   // Create new DM room
@@ -132,5 +144,5 @@ export async function POST(req: NextRequest) {
     lastActivity: new Date(),
   });
 
-  return NextResponse.json({ room }, { status: 201 });
+  return NextResponse.json({ room: serializeRoom(room) }, { status: 201 });
 }

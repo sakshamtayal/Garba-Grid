@@ -21,7 +21,7 @@ function formatMessageTime(dateStr: string): string {
 }
 
 function Avatar({ sender }: { sender: Message['sender'] }) {
-  const initials = sender.name
+  const initials = (sender?.name ?? '?')
     .split(' ')
     .map((n) => n[0])
     .join('')

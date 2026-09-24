@@ -47,14 +47,17 @@ export async function GET(
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
-  const messages = await Message.find({ roomId: new mongoose.Types.ObjectId(roomId) })
-    .sort({ createdAt: -1 })
-    .limit(50)
-    .populate('sender', 'name username profilePicture college')
-    .lean();
+  const serializedRoom = {
+    _id: room._id.toString(),
+    type: room.type,
+    name: room.name,
+    description: room.description,
+    members: (room.members as any[]).map((m: any) => m.toString()),
+    isPrebuilt: room.isPrebuilt,
+    college: room.college,
+    genderFilter: room.genderFilter,
+    lastActivity: room.lastActivity instanceof Date ? room.lastActivity.toISOString() : room.lastActivity,
+  };
 
-  return NextResponse.json({
-    room,
-    messages: messages.reverse(),
-  });
+  return NextResponse.json({ room: serializedRoom });
 }
