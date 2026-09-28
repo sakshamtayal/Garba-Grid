@@ -43,6 +43,7 @@ const UserSchema = new Schema<IUserDocument>(
     },
     instagramId: {
       type: String,
+      required: [true, 'Instagram ID is required'],
       trim: true,
       maxlength: [50, 'Instagram ID cannot exceed 50 characters'],
     },

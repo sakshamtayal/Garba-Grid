@@ -49,6 +49,7 @@ export const authOptions: NextAuthOptions = {
           profilePicture: user.profilePicture || undefined,
           college: user.college,
           gender: user.gender,
+          instagramId: user.instagramId || undefined,
         };
       },
     }),
@@ -63,6 +64,7 @@ export const authOptions: NextAuthOptions = {
         token.profilePicture = user.profilePicture;
         token.college = user.college;
         token.gender = user.gender;
+        token.instagramId = user.instagramId;
       }
       return token;
     },
@@ -75,6 +77,7 @@ export const authOptions: NextAuthOptions = {
         session.user.profilePicture = token.profilePicture;
         session.user.college = token.college;
         session.user.gender = token.gender;
+        session.user.instagramId = token.instagramId;
       }
       return session;
     },

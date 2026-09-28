@@ -1,10 +1,10 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { Heart, MessageSquare, Compass } from 'lucide-react';
+import { Heart, MessageSquare, Compass, Copy, Check, Instagram } from 'lucide-react';
 import type { UserProfile } from '@/lib/types';
 
 // ─── Props ────────────────────────────────────────────────────────────────────
@@ -12,6 +12,7 @@ import type { UserProfile } from '@/lib/types';
 interface MatchCelebrationProps {
   matchedUser: UserProfile;
   currentUser: { name: string; profilePicture?: string };
+  currentUserInstaId?: string;
   onClose: () => void;
 }
 
@@ -61,18 +62,46 @@ function ConfettiParticle({ index }: { index: number }) {
   );
 }
 
+// ─── Copy Button ──────────────────────────────────────────────────────────────
+
+function CopyButton({ text }: { text: string }) {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // fallback
+    }
+  };
+
+  return (
+    <button
+      onClick={handleCopy}
+      className="ml-auto flex items-center gap-1 px-2 py-1 rounded-lg bg-accent-marigold/20 hover:bg-accent-marigold/30 text-accent-marigold text-xs font-semibold transition-all"
+      title="Copy Instagram ID"
+    >
+      {copied ? <Check size={12} /> : <Copy size={12} />}
+      {copied ? 'Copied!' : 'Copy'}
+    </button>
+  );
+}
+
 // ─── Match Celebration Modal ──────────────────────────────────────────────────
 
 export default function MatchCelebration({
   matchedUser,
   currentUser,
+  currentUserInstaId,
   onClose,
 }: MatchCelebrationProps) {
   const router = useRouter();
 
-  // Auto-close after 8 seconds
+  // Auto-close after 12 seconds
   useEffect(() => {
-    const timer = setTimeout(onClose, 8000);
+    const timer = setTimeout(onClose, 12000);
     return () => clearTimeout(timer);
   }, [onClose]);
 
@@ -88,6 +117,8 @@ export default function MatchCelebration({
     onClose();
     router.push(`/chat?dm=${matchedUser.username}`);
   };
+
+  const hasInsta = !!matchedUser.instagramId;
 
   return (
     <motion.div
@@ -111,7 +142,7 @@ export default function MatchCelebration({
 
       {/* Card */}
       <motion.div
-        className="relative z-10 w-full max-w-sm bg-bg-card rounded-3xl border border-border-primary shadow-card overflow-hidden"
+        className="relative z-10 w-full max-w-sm bg-bg-card rounded-3xl border border-border-primary shadow-card overflow-hidden max-h-[90vh] overflow-y-auto"
         initial={{ scale: 0.5, opacity: 0, y: 50 }}
         animate={{ scale: 1, opacity: 1, y: 0 }}
         exit={{ scale: 0.8, opacity: 0 }}
@@ -120,10 +151,10 @@ export default function MatchCelebration({
         {/* Festival Glow */}
         <div className="absolute -inset-[1px] rounded-3xl bg-gradient-festival opacity-30 pointer-events-none" />
 
-        <div className="relative p-8">
+        <div className="relative p-6">
           {/* Title */}
           <motion.div
-            className="text-center mb-8"
+            className="text-center mb-6"
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
@@ -138,7 +169,7 @@ export default function MatchCelebration({
           </motion.div>
 
           {/* Avatars */}
-          <div className="flex items-center justify-center gap-6 mb-8">
+          <div className="flex items-center justify-center gap-6 mb-6">
             {/* Current user avatar */}
             <motion.div
               className="relative"
@@ -149,7 +180,7 @@ export default function MatchCelebration({
               <Avatar
                 name={currentUser.name}
                 picture={currentUser.profilePicture}
-                size={80}
+                size={72}
               />
             </motion.div>
 
@@ -160,7 +191,7 @@ export default function MatchCelebration({
               transition={{ delay: 0.55, duration: 0.5 }}
             >
               <Heart
-                size={36}
+                size={32}
                 className="text-accent-pink fill-accent-pink drop-shadow-lg"
               />
             </motion.div>
@@ -175,17 +206,61 @@ export default function MatchCelebration({
               <Avatar
                 name={matchedUser.name}
                 picture={matchedUser.profilePicture}
-                size={80}
+                size={72}
               />
             </motion.div>
           </div>
+
+          {/* ── Instagram Exchange Section ─────────────────────────── */}
+          {hasInsta && (
+            <motion.div
+              className="mb-5 rounded-2xl border border-accent-marigold/40 bg-accent-marigold/5 p-4 space-y-3"
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.7 }}
+            >
+              <div className="flex items-center gap-2 text-accent-marigold font-bold text-sm">
+                <Instagram size={15} />
+                Instagram Exchange 🎯
+              </div>
+
+              {/* Their Insta */}
+              <div className="rounded-xl bg-bg-secondary border border-border-primary p-3">
+                <p className="text-[10px] text-text-muted uppercase tracking-wider mb-1 font-semibold">
+                  {matchedUser.name}&apos;s Instagram
+                </p>
+                <div className="flex items-center gap-2">
+                  <span className="text-accent-pink font-bold text-sm">
+                    @{matchedUser.instagramId}
+                  </span>
+                  <CopyButton text={matchedUser.instagramId!} />
+                </div>
+              </div>
+
+              {/* Your Insta */}
+              {currentUserInstaId && (
+                <div className="rounded-xl bg-bg-secondary border border-border-primary p-3">
+                  <p className="text-[10px] text-text-muted uppercase tracking-wider mb-1 font-semibold">
+                    Your Instagram
+                  </p>
+                  <span className="text-accent-marigold font-bold text-sm">
+                    @{currentUserInstaId}
+                  </span>
+                </div>
+              )}
+
+              <p className="text-[10px] text-text-muted text-center">
+                Share your Instagram with each other and connect! ✨
+              </p>
+            </motion.div>
+          )}
 
           {/* Actions */}
           <motion.div
             className="flex flex-col gap-3"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6 }}
+            transition={{ delay: 0.8 }}
           >
             <button
               onClick={handleMessage}

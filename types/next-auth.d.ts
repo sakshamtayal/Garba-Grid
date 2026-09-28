@@ -10,6 +10,7 @@ declare module 'next-auth' {
       profilePicture?: string;
       college: string;
       gender: string;
+      instagramId?: string;
     } & DefaultSession['user'];
   }
 
@@ -20,6 +21,7 @@ declare module 'next-auth' {
     profilePicture?: string;
     college: string;
     gender: string;
+    instagramId?: string;
   }
 }
 
@@ -31,5 +33,6 @@ declare module 'next-auth/jwt' {
     profilePicture?: string;
     college: string;
     gender: string;
+    instagramId?: string;
   }
 }

@@ -8,31 +8,43 @@ import type { IUserDocument } from '@/types';
 
 // ─── GET /api/matches/queue ───────────────────────────────────────────────────
 
-export async function GET() {
+export async function GET(req: Request) {
   const { session, error } = await requireAuth();
   if (error) return error;
 
   await connectDB();
 
+  const { searchParams } = new URL(req.url);
+  const gender = searchParams.get('gender') ?? 'all'; // 'male' | 'female' | 'all'
+  const reset = searchParams.get('reset') === 'true';
+
   const userId = new mongoose.Types.ObjectId(session!.user.id);
   const userCollege = session!.user.college;
 
-  // Get all users this person has already interacted with
-  const interacted = await Match.find({
-    $or: [{ from: userId }, { to: userId }],
-  })
-    .select('from to')
-    .lean();
-
+  // Always exclude self
   const excludedIds = new Set<string>([session!.user.id]);
-  interacted.forEach((m) => {
-    excludedIds.add((m.from as mongoose.Types.ObjectId).toString());
-    excludedIds.add((m.to as mongoose.Types.ObjectId).toString());
-  });
+
+  if (!reset) {
+    // Get all users this person has already interacted with
+    const interacted = await Match.find({
+      $or: [{ from: userId }, { to: userId }],
+    })
+      .select('from to')
+      .lean();
+
+    interacted.forEach((m) => {
+      excludedIds.add((m.from as mongoose.Types.ObjectId).toString());
+      excludedIds.add((m.to as mongoose.Types.ObjectId).toString());
+    });
+  }
 
   const excludedObjectIds = Array.from(excludedIds).map(
     (id) => new mongoose.Types.ObjectId(id)
   );
+
+  // Build gender filter
+  const genderFilter: Record<string, string> =
+    gender === 'male' || gender === 'female' ? { gender } : {};
 
   // Fetch unmatched users — same college first (priority), then others
   const BATCH_SIZE = 20;
@@ -40,6 +52,7 @@ export async function GET() {
   const sameCollegeProfiles = (await User.find({
     _id: { $nin: excludedObjectIds },
     college: userCollege,
+    ...genderFilter,
   })
     .select('-password')
     .limit(BATCH_SIZE)
@@ -53,6 +66,7 @@ export async function GET() {
     otherProfiles = (await User.find({
       _id: { $nin: [...excludedObjectIds, ...sameCollegeIds] },
       college: { $ne: userCollege },
+      ...genderFilter,
     })
       .select('-password')
       .limit(remainingLimit)

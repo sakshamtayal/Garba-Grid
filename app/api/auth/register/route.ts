@@ -35,7 +35,7 @@ const RegisterSchema = z.object({
     .regex(/^[A-Za-z\s]*$/, 'College name can only contain alphabets')
     .optional(),
   age: z.number().int().min(17).max(30).optional(),
-  instagramId: z.string().max(50).optional(),
+  instagramId: z.string().min(1, 'Instagram ID is required').max(50),
   bio: z.string().max(300).default(''),
   hobbies: z.array(z.string().max(30)).max(10).default([]),
   dandiayaSkillLevel: z.enum([

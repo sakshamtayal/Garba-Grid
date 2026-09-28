@@ -18,7 +18,7 @@ const profileSchema = z.object({
   gender: z.enum(['male', 'female', 'non_binary', 'prefer_not_to_say']),
   college: z.string().min(2, 'College is required').max(30),
   age: z.coerce.number().min(16).max(35).optional().or(z.literal('')),
-  instagramId: z.string().optional(),
+  instagramId: z.string().min(1, 'Instagram handle is required').max(50),
   bio: z.string().max(250, 'Bio max 250 characters').optional(),
   dandiayaSkillLevel: z.enum(['professional', 'chaos_merchant', 'left_right_struggler']),
   allowDirectDMs: z.boolean().default(false),
@@ -236,11 +236,12 @@ export default function EditProfileForm({ user, onProfileUpdated, onCancel }: Ed
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Input
-          label="Instagram Handle (Optional)"
+          label="Instagram Handle *"
           placeholder="@yourhandle"
           error={errors.instagramId?.message}
           {...register('instagramId')}
         />
+        <p className="text-xs text-text-muted mt-1">Required for when you match with someone 🎯</p>
         <Input
           label="Age (Optional)"
           type="number"

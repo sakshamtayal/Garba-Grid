@@ -1,17 +1,19 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
 import { useSession } from 'next-auth/react';
 import type { UserProfile } from '@/lib/types';
 import ProfileCard from '@/components/discover/ProfileCard';
 import MatchCelebration from '@/components/discover/MatchCelebration';
-import { RefreshCw, Users, Bell, Check, X } from 'lucide-react';
+import { RefreshCw, Users, Bell, Check, X, RotateCcw } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
+
+type GenderFilter = 'all' | 'male' | 'female';
 
 interface PendingRequest {
   _id: string;
@@ -25,6 +27,7 @@ interface PendingRequest {
 export default function DiscoverPage() {
   const { data: session } = useSession();
   const [activeTab, setActiveTab] = useState<'discover' | 'requests'>('discover');
+  const [genderFilter, setGenderFilter] = useState<GenderFilter>('all');
 
   // Discover tab state
   const [queue, setQueue] = useState<UserProfile[]>([]);
@@ -39,17 +42,31 @@ export default function DiscoverPage() {
   const [requestsLoading, setRequestsLoading] = useState(false);
   const [actingOn, setActingOn] = useState<string | null>(null);
 
+  // Track whether notification toast has been shown this session
+  const notifShown = useRef(false);
+
   const currentProfile = queue[0] ?? null;
+
+  // Session user extras
+  const sessionUser = session?.user as {
+    id?: string;
+    username?: string;
+    profilePicture?: string;
+    instagramId?: string;
+  } | undefined;
 
   // ── Fetch Queue ──────────────────────────────────────────────────────────
 
-  const fetchQueue = useCallback(async () => {
+  const fetchQueue = useCallback(async (gender: GenderFilter = genderFilter, reset = false) => {
     setIsLoading(true);
     try {
-      const res = await fetch('/api/matches/queue');
+      const params = new URLSearchParams({ gender });
+      if (reset) params.set('reset', 'true');
+      const res = await fetch(`/api/matches/queue?${params.toString()}`);
       const json = await res.json();
       if (json.success) {
         setQueue(json.data);
+        if (reset) toast.success('Queue refreshed — showing all profiles! 🔄', { duration: 2500 });
       } else {
         toast.error('Failed to load profiles');
       }
@@ -58,6 +75,7 @@ export default function DiscoverPage() {
     } finally {
       setIsLoading(false);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // ── Fetch Pending Requests ───────────────────────────────────────────────
@@ -68,7 +86,17 @@ export default function DiscoverPage() {
       const res = await fetch('/api/matches');
       const json = await res.json();
       if (json.success) {
-        setRequests(json.data.pending || []);
+        const pending: PendingRequest[] = json.data.pending || [];
+        setRequests(pending);
+
+        // Show one-time notification if there are pending requests
+        if (pending.length > 0 && !notifShown.current) {
+          notifShown.current = true;
+          toast(
+            `🔔 You have ${pending.length} new connect request${pending.length > 1 ? 's' : ''}!`,
+            { icon: '🪅', duration: 4000 }
+          );
+        }
       } else {
         toast.error('Failed to load requests');
       }
@@ -80,9 +108,16 @@ export default function DiscoverPage() {
   }, []);
 
   useEffect(() => {
-    fetchQueue();
+    fetchQueue(genderFilter);
     fetchRequests();
-  }, [fetchQueue, fetchRequests]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Re-fetch when gender filter changes
+  useEffect(() => {
+    fetchQueue(genderFilter);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [genderFilter]);
 
   // ── Handle Swipe Action ──────────────────────────────────────────────────
 
@@ -186,6 +221,14 @@ export default function DiscoverPage() {
     return () => window.removeEventListener('keydown', handleKey);
   }, [handleAction, showCelebration, activeTab]);
 
+  // ── Gender Filter Pills ───────────────────────────────────────────────────
+
+  const GENDER_PILLS: { id: GenderFilter; label: string; emoji: string }[] = [
+    { id: 'all', label: 'All', emoji: '🌟' },
+    { id: 'female', label: 'Girls', emoji: '💃' },
+    { id: 'male', label: 'Boys', emoji: '🕺' },
+  ];
+
   // ── Render ───────────────────────────────────────────────────────────────
 
   return (
@@ -207,17 +250,38 @@ export default function DiscoverPage() {
                 : 'No pending requests'}
             </p>
           </div>
-          <button
-            onClick={activeTab === 'discover' ? fetchQueue : fetchRequests}
-            disabled={isLoading || requestsLoading}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-border-primary text-text-secondary hover:text-text-primary hover:border-border-accent transition-all text-sm"
-          >
-            <RefreshCw
-              size={14}
-              className={isLoading || requestsLoading ? 'animate-spin' : ''}
-            />
-            Refresh
-          </button>
+
+          <div className="flex items-center gap-2">
+            {/* See All Again (reset) button — only on discover tab */}
+            {activeTab === 'discover' && (
+              <button
+                onClick={() => fetchQueue(genderFilter, true)}
+                disabled={isLoading}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-accent-marigold/40 text-accent-marigold hover:bg-accent-marigold/10 transition-all text-xs font-semibold"
+                title="See all profiles again (ignore previous swipes)"
+              >
+                <RotateCcw size={13} className={isLoading ? 'animate-spin' : ''} />
+                See All
+              </button>
+            )}
+
+            {/* Refresh button */}
+            <button
+              onClick={() =>
+                activeTab === 'discover'
+                  ? fetchQueue(genderFilter)
+                  : fetchRequests()
+              }
+              disabled={isLoading || requestsLoading}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-border-primary text-text-secondary hover:text-text-primary hover:border-border-accent transition-all text-sm"
+            >
+              <RefreshCw
+                size={14}
+                className={isLoading || requestsLoading ? 'animate-spin' : ''}
+              />
+              Refresh
+            </button>
+          </div>
         </div>
 
         {/* Tabs */}
@@ -250,6 +314,26 @@ export default function DiscoverPage() {
             )}
           </button>
         </div>
+
+        {/* Gender Filter Pills — Discover tab only */}
+        {activeTab === 'discover' && (
+          <div className="flex max-w-2xl mx-auto mt-3 gap-2">
+            {GENDER_PILLS.map((pill) => (
+              <button
+                key={pill.id}
+                onClick={() => setGenderFilter(pill.id)}
+                className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-semibold border transition-all ${
+                  genderFilter === pill.id
+                    ? 'bg-accent-marigold text-white border-accent-marigold shadow-sm'
+                    : 'bg-bg-card text-text-secondary border-border-primary hover:border-accent-marigold/50 hover:text-text-primary'
+                }`}
+              >
+                <span>{pill.emoji}</span>
+                {pill.label}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Keyboard hint (Discover tab only) */}
@@ -266,7 +350,11 @@ export default function DiscoverPage() {
           {isLoading ? (
             <DiscoverSkeleton />
           ) : queue.length === 0 ? (
-            <EmptyState onRefresh={fetchQueue} />
+            <EmptyState
+              onRefresh={() => fetchQueue(genderFilter)}
+              onReset={() => fetchQueue(genderFilter, true)}
+              genderFilter={genderFilter}
+            />
           ) : (
             <div className="relative w-full max-w-md">
               {/* Stack peek cards (next 2) */}
@@ -317,9 +405,7 @@ export default function DiscoverPage() {
                       onPass={() => handleAction('pass')}
                       onConnect={() => handleAction('connect')}
                       isActing={isActing}
-                      currentUsername={
-                        (session?.user as { username?: string })?.username
-                      }
+                      currentUsername={sessionUser?.username}
                     />
                   </motion.div>
                 )}
@@ -430,9 +516,9 @@ export default function DiscoverPage() {
             matchedUser={matchedUser}
             currentUser={{
               name: session?.user?.name || 'You',
-              profilePicture: (session?.user as { profilePicture?: string })
-                ?.profilePicture,
+              profilePicture: sessionUser?.profilePicture,
             }}
+            currentUserInstaId={sessionUser?.instagramId}
             onClose={() => {
               setShowCelebration(false);
               setMatchedUser(null);
@@ -492,7 +578,17 @@ function RequestsSkeleton() {
 
 // ─── Empty States ──────────────────────────────────────────────────────────────
 
-function EmptyState({ onRefresh }: { onRefresh: () => void }) {
+function EmptyState({
+  onRefresh,
+  onReset,
+  genderFilter,
+}: {
+  onRefresh: () => void;
+  onReset: () => void;
+  genderFilter: GenderFilter;
+}) {
+  const filterLabel = genderFilter === 'female' ? 'girls' : genderFilter === 'male' ? 'boys' : 'people';
+
   return (
     <motion.div
       className="flex flex-col items-center gap-6 text-center py-12 px-8"
@@ -504,7 +600,7 @@ function EmptyState({ onRefresh }: { onRefresh: () => void }) {
       </div>
       <div>
         <h3 className="text-xl font-bold text-text-primary">
-          You&apos;ve seen everyone!
+          You&apos;ve seen all {filterLabel}!
         </h3>
         <p className="text-text-secondary text-sm mt-2">
           More dancers are joining every day. Check back soon!
@@ -512,8 +608,15 @@ function EmptyState({ onRefresh }: { onRefresh: () => void }) {
       </div>
       <div className="flex flex-col gap-3 w-full max-w-xs">
         <button
-          onClick={onRefresh}
+          onClick={onReset}
           className="flex items-center justify-center gap-2 py-3 rounded-xl bg-gradient-marigold text-white font-semibold shadow-marigold hover:shadow-marigold-lg transition-all"
+        >
+          <RotateCcw size={16} />
+          See All {filterLabel === 'people' ? 'Profiles' : filterLabel.charAt(0).toUpperCase() + filterLabel.slice(1)} Again
+        </button>
+        <button
+          onClick={onRefresh}
+          className="flex items-center justify-center gap-2 py-3 rounded-xl border border-border-primary text-text-secondary hover:text-text-primary hover:border-border-accent transition-all text-sm"
         >
           <RefreshCw size={16} />
           Refresh Queue
